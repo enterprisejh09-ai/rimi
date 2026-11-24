@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0b">
+<title>RI MI — A Visual Journey</title>
+<style>
+:root {
+  --bg:#0a0a0b; --surface:#17171a; --text:#f4f4f5; --muted:#a3a3ad;
+  --ring:rgba(255,255,255,.08); --shadow:rgba(0,0,0,.75);
+  --card-w:150px; --card-h:200px; --sphere-radius:380px;
+}
+@media(max-width:720px){:root{--card-w:100px;--card-h:138px;--sphere-radius:190px}}
+*{margin:0;padding:0;box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5;overflow-x:hidden}
+.spacer{height:60vh;min-height:360px;display:grid;place-items:center;text-align:center;padding:2rem;position:relative}
+.eyebrow{font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:#c5a5ad;margin-bottom:1rem}
+.intro-title{font-size:clamp(3rem,10vw,7rem);font-weight:500;letter-spacing:-.075em;line-height:.95}
+.intro-title span{color:#cdaab4}
+.intro-sub{margin-top:1.2rem;color:var(--muted);letter-spacing:.08em;font-size:.8rem;text-transform:uppercase}
+.scroll-note{position:absolute;bottom:2.5rem;font-size:.68rem;letter-spacing:.2em;color:#777;text-transform:uppercase}
+.scroll-note:after{content:"";display:block;width:1px;height:35px;background:#777;margin:12px auto 0}
+.sphere-gallery{position:relative;height:320vh}
+.sphere-gallery__stage{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;display:grid;place-items:center;perspective:1400px}
+.sphere-gallery__stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 42%,var(--bg) 92%)}
+.sphere-gallery__caption{position:absolute;left:6%;top:50%;transform:translateY(-50%);max-width:310px;z-index:3;pointer-events:none}
+.index{display:block;font-size:.72rem;letter-spacing:.16em;color:var(--muted);margin-bottom:.85rem}
+.sphere-gallery__caption h2{font-size:clamp(1.6rem,3vw,2.25rem);font-weight:500;letter-spacing:-.035em;margin-bottom:.7rem;text-shadow:0 6px 20px var(--shadow);transition:opacity .15s ease}
+.sphere-gallery__caption p{color:var(--muted);font-size:.9rem;transition:opacity .15s ease}
+.sphere{position:relative;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.sphere-card{position:absolute;width:var(--card-w);height:var(--card-h);left:calc(var(--card-w)/-2);top:calc(var(--card-h)/-2);border-radius:14px;padding:6px;background:var(--surface);border:1px solid var(--ring);transform-style:preserve-3d;box-shadow:6px 6px 14px var(--shadow),inset 1px 1px 2px rgba(255,255,255,.05),inset -2px -2px 4px rgba(0,0,0,.5);transition:filter .35s ease,box-shadow .35s ease}
+.sphere-card img{width:100%;height:100%;object-fit:cover;border-radius:9px;display:block;filter:grayscale(75%) brightness(.55);transition:filter .4s ease}
+.sphere-card.is-focused{box-shadow:0 0 0 1px rgba(255,255,255,.2),0 12px 30px var(--shadow)}
+.sphere-card.is-focused img{filter:grayscale(0%) brightness(1)}
+.end-mark{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:#c5a5ad}
+footer{padding:2rem;text-align:center;color:#777;font-size:.72rem;letter-spacing:.12em}
+@media(max-width:720px){
+ .sphere-gallery__caption{left:50%;top:auto;bottom:5%;transform:translateX(-50%);text-align:center;width:88%;max-width:420px}
+ .sphere-gallery__stage:after{background:radial-gradient(circle at center,transparent 32%,var(--bg) 92%)}
+ .sphere-gallery{height:300vh}
+}
+</style>
+</head>
+<body>
+<header class="spacer">
+  <div>
+    <div class="eyebrow">A collection of little moments</div>
+    <h1 class="intro-title">RI <span>MI</span></h1>
+    <p class="intro-sub">A Visual Journey · Personal Memories</p>
+  </div>
+  <div class="scroll-note">Scroll to explore</div>
+</header>
+
+<section class="sphere-gallery" aria-label="RI MI personal memory gallery">
+  <div class="sphere-gallery__stage">
+    <div class="sphere-gallery__caption" aria-live="polite">
+      <span class="index" id="galleryIndex">01 / 04</span>
+      <h2 id="galleryTitle">Little Moments, Beautiful Memories</h2>
+      <p id="galleryDesc">A collection of portraits, colors and moments worth keeping close.</p>
+    </div>
+    <div class="sphere" id="sphere" role="list" aria-label="18 personal photographs"></div>
+  </div>
+</section>
+
+<section class="spacer">
+  <div>
+    <div class="end-mark">The memories remain</div>
+    <h2 style="font-size:clamp(2rem,6vw,4rem);font-weight:400;letter-spacing:-.05em;margin-top:.7rem">Thank you for exploring.</h2>
+    <p style="margin:1rem auto 0;color:var(--muted)">Every picture holds a moment. Every moment becomes a memory.</p>
+  </div>
+</section>
+<footer>RI MI · A VISUAL JOURNEY</footer>
+
+<script>
+(() => {
+"use strict";
+// This gallery intentionally keeps its scroll-driven 3D sphere animation enabled.
+const images = [
+  "images/memory-01.jpg",
+  "images/memory-02.jpg",
+  "images/memory-03.jpg",
+  "images/memory-04.jpg",
+  "images/memory-05.jpg",
+  "images/memory-06.jpg",
+  "images/memory-07.jpg",
+  "images/memory-08.jpg",
+  "images/memory-09.jpg",
+  "images/memory-10.jpg",
+  "images/memory-11.jpg",
+  "images/memory-12.jpg",
+  "images/memory-13.jpg",
+  "images/memory-14.jpg",
+  "images/memory-15.jpg",
+  "images/memory-16.jpg",
+  "images/memory-17.jpg",
+  "images/memory-18.jpg"
+];
+const captions = [
+ {title:"Little Moments, Beautiful Memories",desc:"A collection of portraits, colors and moments worth keeping close."},
+ {title:"Colors of Every Day",desc:"Different looks, different moods — each one telling its own little story."},
+ {title:"Grace in the Details",desc:"Soft smiles, favorite outfits and the small details that make a memory special."},
+ {title:"A Visual Journey",desc:"18 captured moments, gathered together in one spinning world."}
+];
+const sphereEl=document.getElementById("sphere");
+const titleEl=document.getElementById("galleryTitle");
+const descEl=document.getElementById("galleryDesc");
+const indexEl=document.getElementById("galleryIndex");
+let cards=[],currentCaption=-1,ticking=false,resizeTimer;
+const getRadius=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sphere-radius"))||380;
+function buildSphere(){
+ sphereEl.innerHTML="";cards=[];const radius=getRadius(),count=images.length;
+ images.forEach((src,i)=>{
+  const card=document.createElement("div");card.className="sphere-card";card.setAttribute("role","listitem");
+  const img=document.createElement("img");img.src=src;img.alt=`RI MI memory ${i+1}`;img.loading=i<6?"eager":"lazy";img.decoding="async";
+  card.appendChild(img);
+  const phi=Math.acos(1-(2*(i+.5))/count),theta=Math.PI*(1+Math.sqrt(5))*i;
+  const x=radius*Math.cos(theta)*Math.sin(phi),y=radius*Math.sin(theta)*Math.sin(phi),z=radius*Math.cos(phi);
+  const rotY=Math.atan2(x,z)*(180/Math.PI),rotX=Math.asin(-y/radius)*(180/Math.PI);
+  card.style.transform=`translate3d(${x}px,${y}px,${z}px) rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+  sphereEl.appendChild(card);cards.push(card);
+ });
+}
+function getProgress(){
+ const rect=document.querySelector(".sphere-gallery").getBoundingClientRect();
+ const total=rect.height-window.innerHeight;
+ return total<=0?0:Math.min(1,Math.max(0,-rect.top/total));
+}
+function updateCaption(progress){
+ const idx=Math.min(captions.length-1,Math.floor(progress*captions.length));
+ if(idx===currentCaption)return;currentCaption=idx;
+ const {title,desc}=captions[idx];titleEl.style.opacity=0;descEl.style.opacity=0;
+ window.setTimeout(()=>{
+  titleEl.textContent=title;descEl.textContent=desc;
+  indexEl.textContent=`0${idx+1} / 0${captions.length}`;
+  titleEl.style.opacity=1;descEl.style.opacity=1;
+ },150);
+}
+function updateFocused(progress){
+ const focusIndex=Math.round(progress*(cards.length-1));
+ cards.forEach((card,i)=>card.classList.toggle("is-focused",Math.abs(i-focusIndex)<2));
+}
+function onScroll(){
+ if(ticking)return;ticking=true;
+ requestAnimationFrame(()=>{
+  const progress=getProgress();
+  sphereEl.style.transform=`rotateY(${progress*360*2}deg) rotateX(${progress*40}deg)`;
+  updateCaption(progress);updateFocused(progress);ticking=false;
+ });
+}
+buildSphere();
+window.addEventListener("scroll",onScroll,{passive:true});
+onScroll();
+window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{buildSphere();onScroll()},200)});
+})();
+</script>
+</body>
+</html>
