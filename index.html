@@ -1,0 +1,1137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080713">
+<title>RI MI — Memory Universe</title>
+
+<style>
+:root {
+  --space: #080713;
+  --pink: #ff9fcf;
+  --purple: #a995ff;
+  --cyan: #8be9ff;
+  --muted: #aaa3c1;
+  --card-w: 142px;
+  --card-h: 184px;
+  --radius: 440px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--space);
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+#stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora {
+  position: fixed;
+  inset: -30%;
+  background: conic-gradient(
+    transparent,
+    rgba(169,149,255,.15),
+    transparent,
+    rgba(255,159,207,.12),
+    transparent
+  );
+  filter: blur(90px);
+  animation: aurora 25s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes aurora {
+  to { transform: rotate(360deg); }
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  height: 75px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ffffff12;
+}
+
+.brand {
+  letter-spacing: 6px;
+  font-weight: bold;
+  color: var(--pink);
+}
+
+.top-note {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+}
+
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 30px;
+}
+
+.kicker {
+  color: #c7b8e7;
+  font-size: 11px;
+  letter-spacing: 5px;
+}
+
+h1 {
+  font-size: clamp(55px, 10vw, 110px);
+  letter-spacing: -7px;
+  font-weight: 500;
+  margin: 25px 0;
+}
+
+h1 span {
+  background: linear-gradient(120deg, white, #ff9fcf, #a995ff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  color: var(--muted);
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+.hero-line {
+  width: 1px;
+  height: 55px;
+  background: linear-gradient(transparent, var(--pink), transparent);
+  margin: 30px;
+}
+
+.scroll-hint {
+  color: #8982a1;
+  font-size: 10px;
+  letter-spacing: 4px;
+}
+
+.universe {
+  height: 780px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  perspective: 1500px;
+}
+
+.universe::before {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(141,93,199,.18),
+    transparent 70%
+  );
+}
+
+.universe::after {
+  content: "";
+  position: absolute;
+  width: 550px;
+  height: 550px;
+  border: 1px solid #b9a2ff20;
+  border-radius: 50%;
+  transform: rotateX(70deg);
+  box-shadow: 0 0 70px #a995ff20;
+}
+
+.scene {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.scene.dragging {
+  cursor: grabbing;
+}
+
+.orbit {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.memory-card {
+  position: absolute;
+  width: var(--card-w);
+  height: var(--card-h);
+  left: calc(var(--card-w) / -2);
+  top: calc(var(--card-h) / -2);
+  padding: 6px;
+  border-radius: 17px;
+  border: 1px solid #ffffff35;
+  background: linear-gradient(145deg, #ffffff30, #171229);
+  box-shadow: 0 15px 45px #0009;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transition: filter .4s, box-shadow .4s;
+  color: white;
+}
+
+.memory-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+  filter: grayscale(60%) brightness(.6);
+  transition: .4s;
+}
+
+.memory-card.active {
+  border-color: var(--pink);
+  box-shadow: 0 0 30px #ff9fcf70, 0 20px 50px #000;
+}
+
+.memory-card.active img {
+  filter: none;
+}
+
+.memory-note {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: 11px;
+  z-index: 2;
+  padding: 8px 9px;
+  border: 1px solid #ffffff25;
+  border-radius: 10px;
+  background: rgba(12, 8, 28, .84);
+  color: #fff0fa;
+  font-size: 10px;
+  line-height: 1.45;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.memory-card:hover .memory-note,
+.memory-card:focus-visible .memory-note,
+.memory-card.active .memory-note {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.memory-card:focus-visible {
+  outline: 2px solid var(--cyan);
+}
+
+.core {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  margin: -55px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    circle at 35% 30%,
+    white,
+    #ffc4e3 8%,
+    #bd8cff 25%,
+    #30205d 65%,
+    transparent 75%
+  );
+  box-shadow:
+    0 0 40px #ff9fcf,
+    0 0 100px #a995ff,
+    0 0 180px #a995ff55;
+  animation: pulse 4s infinite;
+  pointer-events: none;
+}
+
+.core span {
+  font-weight: bold;
+  letter-spacing: 4px;
+  font-size: 12px;
+}
+
+@keyframes pulse {
+  50% { transform: scale(1.12); }
+}
+
+.hud {
+  position: absolute;
+  left: 6%;
+  bottom: 35px;
+  max-width: 280px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hud-label {
+  color: var(--pink);
+  font-size: 10px;
+  letter-spacing: 4px;
+}
+
+.hud h2 {
+  font-weight: 500;
+  font-size: 23px;
+}
+
+.hud p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.counter {
+  position: absolute;
+  right: 6%;
+  bottom: 40px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 30px 15px 60px;
+}
+
+.control {
+  padding: 12px 20px;
+  border: 1px solid #ffffff30;
+  border-radius: 30px;
+  background: #211a3c;
+  color: white;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: .3s;
+}
+
+.control:hover {
+  border-color: var(--pink);
+  box-shadow: 0 0 20px #ff9fcf40;
+  transform: translateY(-3px);
+}
+
+.instructions {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #77718d;
+  padding-bottom: 60px;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  border-top: 1px solid #ffffff15;
+  color: #8982a1;
+  font-size: 10px;
+  letter-spacing: 4px;
+}
+
+/* Image popup */
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #05040eeF;
+  backdrop-filter: blur(15px);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-panel {
+  position: relative;
+  width: min(850px, 100%);
+  max-height: 90vh;
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  background: #171229;
+  border: 1px solid #ffffff30;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.modal-image-wrap {
+  min-height: 350px;
+  background: #090714;
+}
+
+.modal-image {
+  width: 100%;
+  height: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.modal-info {
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-info small {
+  color: var(--pink);
+  letter-spacing: 3px;
+}
+
+.modal-info h2 {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.modal-info p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.modal-info .modal-note {
+  color: #ffe0f1;
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 14px 16px;
+  border-left: 2px solid var(--pink);
+  background: #ff9fcf0d;
+  border-radius: 0 12px 12px 0;
+}
+
+.close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ffffff50;
+  background: #171229;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.modal-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-nav button {
+  border: 1px solid #ffffff30;
+  border-radius: 25px;
+  padding: 10px 15px;
+  background: #ffffff10;
+  color: white;
+  cursor: pointer;
+}
+
+@media(max-width:760px) {
+  :root {
+    --card-w: 100px;
+    --card-h: 135px;
+    --radius: 265px;
+  }
+
+  .hero { min-height: 75vh; }
+
+  .universe { height: 680px; }
+
+  .hud {
+    left: 20px;
+    right: 20px;
+    bottom: 25px;
+    text-align: center;
+    max-width: none;
+  }
+
+  .counter {
+    top: 20px;
+    bottom: auto;
+  }
+
+  .modal-panel {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .modal-image-wrap {
+    height: 48vh;
+    min-height: 200px;
+  }
+
+  .modal-info { padding: 20px; }
+
+  .memory-note {
+    opacity: 1;
+    transform: none;
+    font-size: 8px;
+    padding: 5px 6px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+}
+
+@media(max-width:390px) {
+  :root {
+    --card-w: 85px;
+    --card-h: 115px;
+    --radius: 225px;
+  }
+
+  .universe { height: 620px; }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+<div class="aurora"></div>
+
+<div class="page">
+
+<header>
+  <div class="brand">✦ RI MI</div>
+  <div class="top-note">A UNIVERSE OF MEMORIES</div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="kicker">SOME MOMENTS BECOME GALAXIES</div>
+
+  <h1>Welcome to <span>RI MI</span></h1>
+
+  <p class="subtitle">
+    A little universe, made from moments worth keeping.
+  </p>
+
+  <div class="hero-line"></div>
+
+  <div class="scroll-hint">
+    ENTER THE MEMORY UNIVERSE · SCROLL DOWN
+  </div>
+</section>
+
+<section class="universe">
+
+  <div class="scene" id="scene">
+
+    <div class="core">
+      <span>RI MI</span>
+    </div>
+
+    <div class="orbit" id="orbit"></div>
+
+  </div>
+
+  <div class="hud">
+    <div class="hud-label">NOW DRIFTING INTO</div>
+    <h2 id="memoryTitle">Memory 01</h2>
+    <p id="memoryDesc">
+      Drag the universe to explore the memories.
+      Select any photo to open it.
+    </p>
+  </div>
+
+  <div class="counter" id="counter">01 / 18</div>
+
+</section>
+
+<div class="controls">
+
+  <button class="control" id="previous">
+    ← Previous
+  </button>
+
+  <button class="control" id="playPause">
+    Ⅱ Pause Orbit
+  </button>
+
+  <button class="control" id="next">
+    Next →
+  </button>
+
+  <button class="control" id="random">
+    ✧ Surprise Me
+  </button>
+
+</div>
+
+<p class="instructions">
+  DRAG TO ROTATE · CLICK A PHOTO TO OPEN · USE ARROW KEYS
+</p>
+
+</main>
+
+<footer>
+  RI MI · A VISUAL JOURNEY THROUGH LITTLE MOMENTS
+</footer>
+
+</div>
+
+<!-- IMAGE VIEWER -->
+
+<div class="modal" id="modal">
+
+  <div class="modal-panel">
+
+    <button class="close" id="closeModal">×</button>
+
+    <div class="modal-image-wrap">
+      <img class="modal-image" id="modalImage" alt="RI MI memory">
+    </div>
+
+    <div class="modal-info">
+
+      <small id="modalNumber">MEMORY 01</small>
+
+      <h2 id="modalTitle">A Moment to Remember</h2>
+
+      <p id="modalNote" class="modal-note">
+        Every picture holds a moment. Every moment becomes a memory.
+      </p>
+
+      <div class="modal-nav">
+        <button id="modalPrev">← Previous</button>
+        <button id="modalNext">Next →</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+"use strict";
+
+/* YOUR 18 PERSONAL PHOTOS */
+
+const photos = [
+  { src: "images/memory-01.jpg", note: "Some moments are too beautiful to forget. 💗" },
+  { src: "images/memory-02.jpg", note: "Your smile makes ordinary days magical. ✨" },
+  { src: "images/memory-03.jpg", note: "A little memory, a lifetime of happiness. 🌸" },
+  { src: "images/memory-04.jpg", note: "If happiness had a picture, it would be this. 🥰" },
+  { src: "images/memory-05.jpg", note: "Some people make the world feel softer. 💕" },
+  { src: "images/memory-06.jpg", note: "This moment deserves to last forever. 🌷" },
+  { src: "images/memory-07.jpg", note: "A beautiful memory from a beautiful soul. ❤️" },
+  { src: "images/memory-08.jpg", note: "Keep smiling, because your smile is special. 😊" },
+  { src: "images/memory-09.jpg", note: "Little moments become the sweetest memories. 🦋" },
+  { src: "images/memory-10.jpg", note: "The world feels brighter with you in it. 🌟" },
+  { src: "images/memory-11.jpg", note: "A picture cannot hold all this beauty. 💖" },
+  { src: "images/memory-12.jpg", note: "Some memories always bring a smile. 🌻" },
+  { src: "images/memory-13.jpg", note: "Stay just the way you are. You're wonderful. 🫶" },
+  { src: "images/memory-14.jpg", note: "A thousand little reasons to smile. 💫" },
+  { src: "images/memory-15.jpg", note: "Every photo tells a story worth remembering. 🌹" },
+  { src: "images/memory-16.jpg", note: "May your days always be filled with sunshine. ☀️" },
+  { src: "images/memory-17.jpg", note: "Some memories feel like a warm hug. 🤍" },
+  { src: "images/memory-18.jpg", note: "Forever grateful for beautiful little moments. 💗" }
+];
+
+const orbit = document.getElementById("orbit");
+const scene = document.getElementById("scene");
+
+const title = document.getElementById("memoryTitle");
+const desc = document.getElementById("memoryDesc");
+const counter = document.getElementById("counter");
+
+const modal = document.getElementById("modal");
+const modalImage = document.getElementById("modalImage");
+const modalNumber = document.getElementById("modalNumber");
+const modalNote = document.getElementById("modalNote");
+
+let cards = [];
+let active = 0;
+
+let rotationY = 0;
+let rotationX = -5;
+let velocity = 0;
+
+let paused = false;
+let dragging = false;
+let moved = false;
+
+let startX = 0;
+let startY = 0;
+let lastX = 0;
+let lastY = 0;
+
+let previousTime = 0;
+
+function getRadius() {
+  return parseFloat(
+    getComputedStyle(document.documentElement)
+    .getPropertyValue("--radius")
+  ) || 440;
+}
+
+/* BUILD 3D SPHERE */
+
+function buildSphere() {
+
+  orbit.innerHTML = "";
+  cards = [];
+
+  const radius = getRadius();
+  const count = photos.length;
+
+  photos.forEach((src, i) => {
+
+    const card = document.createElement("button");
+
+    card.className = "memory-card";
+    card.type = "button";
+
+    card.setAttribute(
+      "aria-label",
+      `Open memory ${i + 1}`
+    );
+
+    const img = document.createElement("img");
+
+    img.src = src.src;
+    img.alt = `RI MI Memory ${i + 1}`;
+    img.loading = i < 8 ? "eager" : "lazy";
+
+    const note = document.createElement("span");
+    note.className = "memory-note";
+    note.textContent = src.note;
+
+    card.appendChild(img);
+    card.appendChild(note);
+
+    /* Fibonacci Sphere Distribution */
+
+    const phi = Math.acos(
+      1 - (2 * (i + 0.5)) / count
+    );
+
+    const theta =
+      Math.PI * (1 + Math.sqrt(5)) * i;
+
+    const x =
+      radius * Math.cos(theta) * Math.sin(phi);
+
+    const y =
+      radius * Math.sin(theta) * Math.sin(phi);
+
+    const z =
+      radius * Math.cos(phi);
+
+    const ry = Math.atan2(x, z) * 180 / Math.PI;
+    const rx = Math.asin(-y / radius) * 180 / Math.PI;
+
+    card.dataset.x = x;
+    card.dataset.y = y;
+    card.dataset.z = z;
+
+    card.style.transform = `
+      translate3d(${x}px,${y}px,${z}px)
+      rotateY(${ry}deg)
+      rotateX(${rx}deg)
+    `;
+
+    card.addEventListener("click", () => {
+
+      if (!moved) {
+        openMemory(i);
+      }
+
+    });
+
+    orbit.appendChild(card);
+    cards.push(card);
+
+  });
+
+  updateFocus();
+}
+
+/* DETECT FRONT PHOTO */
+
+function updateFocus() {
+
+  if (!cards.length) return;
+
+  let best = 0;
+  let bestZ = -Infinity;
+
+  const ry = rotationY * Math.PI / 180;
+  const rx = rotationX * Math.PI / 180;
+
+  const cy = Math.cos(ry);
+  const sy = Math.sin(ry);
+
+  const cx = Math.cos(rx);
+  const sx = Math.sin(rx);
+
+  cards.forEach((card, i) => {
+
+    const x = Number(card.dataset.x);
+    const y = Number(card.dataset.y);
+    const z = Number(card.dataset.z);
+
+    const z1 = -x * sy + z * cy;
+
+    const y2 = y * cx - z1 * sx;
+    const z2 = y * sx + z1 * cx;
+
+    if (z2 > bestZ) {
+      bestZ = z2;
+      best = i;
+    }
+
+  });
+
+  active = best;
+
+  cards.forEach((card, i) => {
+
+    card.classList.toggle(
+      "active",
+      i === active
+    );
+
+  });
+
+  title.textContent =
+    `Memory ${String(active + 1).padStart(2,"0")}`;
+
+  desc.textContent = photos[active].note;
+
+  counter.textContent =
+    `${String(active + 1).padStart(2,"0")} / ${String(photos.length).padStart(2,"0")}`;
+
+}
+
+/* CONTINUOUS 3D ROTATION */
+
+function animate(time) {
+
+  const dt = Math.min(
+    (time - (previousTime || time)) / 16.67,
+    2
+  );
+
+  previousTime = time;
+
+  if (!paused && !dragging) {
+
+    rotationY += 0.12 * dt;
+
+  }
+
+  velocity *= 0.96;
+
+  rotationY += velocity * dt;
+
+  orbit.style.transform = `
+    rotateX(${rotationX}deg)
+    rotateY(${rotationY}deg)
+  `;
+
+  updateFocus();
+
+  requestAnimationFrame(animate);
+
+}
+
+/* MANUAL NAVIGATION */
+
+function go(step) {
+
+  rotationY += step * (360 / photos.length);
+  velocity = 0;
+
+}
+
+/* OPEN PHOTO */
+
+function openMemory(i) {
+
+  active = i;
+
+  modalImage.src = photos[i].src;
+  modalNote.textContent = photos[i].note;
+
+  modalNumber.textContent =
+    `MEMORY ${String(i + 1).padStart(2,"0")}`;
+
+  modal.classList.add("open");
+
+  document.body.style.overflow = "hidden";
+
+}
+
+function closeMemory() {
+
+  modal.classList.remove("open");
+
+  document.body.style.overflow = "";
+
+}
+
+function modalStep(step) {
+
+  active =
+    (active + step + photos.length) % photos.length;
+
+  openMemory(active);
+
+}
+
+/* DRAG TO ROTATE */
+
+scene.addEventListener("pointerdown", e => {
+
+  dragging = true;
+  moved = false;
+
+  startX = lastX = e.clientX;
+  startY = lastY = e.clientY;
+
+  scene.classList.add("dragging");
+
+});
+
+window.addEventListener("pointermove", e => {
+
+  if (!dragging) return;
+
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+
+  if (
+    Math.abs(e.clientX - startX) +
+    Math.abs(e.clientY - startY) > 5
+  ) {
+    moved = true;
+  }
+
+  rotationY += dx * 0.42;
+
+  rotationX = Math.max(
+    -28,
+    Math.min(28, rotationX - dy * 0.22)
+  );
+
+  velocity = dx * 0.012;
+
+  lastX = e.clientX;
+  lastY = e.clientY;
+
+});
+
+function endDrag() {
+
+  dragging = false;
+
+  scene.classList.remove("dragging");
+
+  setTimeout(() => {
+    moved = false;
+  }, 100);
+
+}
+
+window.addEventListener("pointerup", endDrag);
+window.addEventListener("pointercancel", endDrag);
+
+/* BUTTONS */
+
+document.getElementById("previous")
+.addEventListener("click", () => go(-1));
+
+document.getElementById("next")
+.addEventListener("click", () => go(1));
+
+document.getElementById("random")
+.addEventListener("click", () => {
+
+  const target = Math.floor(
+    Math.random() * photos.length
+  );
+
+  rotationY += (target - active) * (360 / photos.length);
+
+});
+
+document.getElementById("playPause")
+.addEventListener("click", e => {
+
+  paused = !paused;
+
+  e.currentTarget.textContent =
+    paused ? "▶ Resume Orbit" : "Ⅱ Pause Orbit";
+
+});
+
+/* MODAL BUTTONS */
+
+document.getElementById("closeModal")
+.addEventListener("click", closeMemory);
+
+document.getElementById("modalPrev")
+.addEventListener("click", () => modalStep(-1));
+
+document.getElementById("modalNext")
+.addEventListener("click", () => modalStep(1));
+
+modal.addEventListener("click", e => {
+
+  if (e.target === modal) {
+    closeMemory();
+  }
+
+});
+
+/* KEYBOARD */
+
+window.addEventListener("keydown", e => {
+
+  if (e.key === "Escape") {
+    closeMemory();
+  }
+
+  if (modal.classList.contains("open")) {
+
+    if (e.key === "ArrowRight") modalStep(1);
+    if (e.key === "ArrowLeft") modalStep(-1);
+
+  } else {
+
+    if (e.key === "ArrowRight") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+
+  }
+
+});
+
+/* RESIZE */
+
+window.addEventListener("resize", buildSphere);
+
+/* START */
+
+buildSphere();
+
+requestAnimationFrame(animate);
+
+/* STAR PARTICLES */
+
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+let stars = [];
+
+function resizeStars() {
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  stars = Array.from({ length: 150 }, () => ({
+
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.5,
+    a: Math.random() * 0.7 + 0.2,
+    phase: Math.random() * 6
+
+  }));
+
+}
+
+function drawStars(time) {
+
+  ctx.clearRect(
+    0, 0,
+    canvas.width,
+    canvas.height
+  );
+
+  stars.forEach(star => {
+
+    const alpha =
+      star.a * (
+        0.65 + 0.35 *
+        Math.sin(time * 0.001 + star.phase)
+      );
+
+    ctx.beginPath();
+
+    ctx.arc(
+      star.x,
+      star.y,
+      star.r,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      `rgba(226,220,255,${alpha})`;
+
+    ctx.fill();
+
+  });
+
+  requestAnimationFrame(drawStars);
+
+}
+
+window.addEventListener("resize", resizeStars);
+
+resizeStars();
+
+requestAnimationFrame(drawStars);
+
+})();
+</script>
+
+</body>
+</html>
